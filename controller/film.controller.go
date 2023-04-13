@@ -110,9 +110,9 @@ func FilmControllerUpdate(ctx *fiber.Ctx) error {
 
 	var film entity.Film
 
-	userId := ctx.Params("id")
+	filmId := ctx.Params("id")
 	// CHECK AVAILABLE USER
-	err := database.DB.First(&film, "id = ?", userId).Error
+	err := database.DB.First(&film, "id = ?", filmId).Error
 	if err != nil {
 		return ctx.Status(404).JSON(fiber.Map{
 			"message": "data tidak valid",

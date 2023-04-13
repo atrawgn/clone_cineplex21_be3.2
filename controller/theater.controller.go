@@ -77,8 +77,8 @@ func TheaterControllerCreate(ctx *fiber.Ctx) error {
 
 	newUser.Password = hashedPassword*/
 
-	errCreateUser := database.DB.Create(&newTheater).Error
-	if errCreateUser != nil {
+	errCreateTheater := database.DB.Create(&newTheater).Error
+	if errCreateTheater != nil {
 		return ctx.Status(500).JSON(fiber.Map{
 			"message": "Tidak berhasil menyimpan data",
 		})
@@ -108,18 +108,18 @@ func TheaterControllerGetById(ctx *fiber.Ctx) error {
 }
 
 func TheaterControllerUpdate(ctx *fiber.Ctx) error {
-	userRequest := new(request.UserUpdateRequest)
-	if err := ctx.BodyParser(userRequest); err != nil {
+	theaterRequest := new(request.TheaterUpdateRequest)
+	if err := ctx.BodyParser(theaterRequest); err != nil {
 		return ctx.Status(400).JSON(fiber.Map{
 			"message": "bad request",
 		})
 	}
 
-	var user entity.User
+	var theater entity.Theater
 
-	userId := ctx.Params("id")
+	theaterId := ctx.Params("id")
 	// CHECK AVAILABLE USER
-	err := database.DB.First(&user, "id = ?", userId).Error
+	err := database.DB.First(&theater, "id = ?", theaterId).Error
 	if err != nil {
 		return ctx.Status(404).JSON(fiber.Map{
 			"message": "data tidak valid",
@@ -127,11 +127,11 @@ func TheaterControllerUpdate(ctx *fiber.Ctx) error {
 	}
 
 	// UPDATE USER DATA
-	if userRequest.Nama != "" {
-		user.Nama = userRequest.Nama
+	if theaterRequest.Theater != "" {
+		theater.Theater = theaterRequest.Theater
 	}
 
-	errUpdate := database.DB.Save(&user).Error
+	errUpdate := database.DB.Save(&theater).Error
 	if errUpdate != nil {
 		return ctx.Status(500).JSON(fiber.Map{
 			"message": "internal server error",
@@ -140,7 +140,7 @@ func TheaterControllerUpdate(ctx *fiber.Ctx) error {
 
 	return ctx.JSON(fiber.Map{
 		"message": "Sukses",
-		"data":    user,
+		"data":    theater,
 	})
 }
 

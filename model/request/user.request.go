@@ -49,3 +49,21 @@ type TheaterUpdateRequest struct {
 	Theater string `json:"theater"`
 	Phone   string `json:"phone"`
 }
+
+//BOOK SECTION
+
+type BookCreateRequest struct {
+	ID       uint   `json:"id" gorm:"primaryKey"`
+	Title    string `json:"title"`
+	Synopsis string `json:"sinopsis"`
+	Content  string `json:"content"`
+	Author   string `json:"author"`
+}
+
+type BookUpdateRequest struct {
+	ID       uint   `json:"id" gorm:"primaryKey"`
+	Title    string `json:"title"`
+	Synopsis string `json:"sinopsis"`
+	Content  string `json:"content"`
+	Author   string `json:"author"`
+}
