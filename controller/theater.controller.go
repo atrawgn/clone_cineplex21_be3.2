@@ -26,14 +26,14 @@ func TheaterControllerGetByKota(ctx *fiber.Ctx) error {
 	return ctx.JSON(theaters)
 }
 
-func TheaterControllerGetDetails(ctx *fiber.Ctx) error {
+/*func TheaterControllerGetDetails(ctx *fiber.Ctx) error {
 	theaterid := ctx.QueryInt("theaterid")
-	var film []entity.TheaterDetails
+	var film []entity.TheaterList
 	err := database.DB.Raw(`
-		SELECT theaters.id, theaters.kota, theaters.theater, theaters.phone, films.id, films.judul, films.jenis_film, films.produser, films.sutradara, films.penulis, films.produksi, films.casts, films.sinopsis
-		FROM theaters, films
-		INNER JOIN theater_lists l ON l.film_id = films.id
-		WHERE theaters.id = ?`, theaterid).Scan(&film)
+		SELECT t.id, t.kota, t.theater, t.phone
+		FROM theaters
+		INNER JOIN theater_lists l ON l.theater_id = theater.id
+		WHERE theaters.id = ?`, theaterid).Scan(&theater)
 
 	if err.Error != nil {
 		log.Println(err.Error)
@@ -41,7 +41,29 @@ func TheaterControllerGetDetails(ctx *fiber.Ctx) error {
 
 	return ctx.JSON(fiber.Map{
 		"message": "successfully",
-		"data":    film,
+		"data":    theater,
+	})
+}*/
+
+func TheaterControllerGetDetails(ctx *fiber.Ctx) error {
+	var theater []entity.TheaterList
+	err := database.DB.Raw(`
+        SELECT tl.id, t.kota, t.theater, t.phone, f.id, f.judul, f.jenis_film, f.produser, f.sutradara, f.penulis, f.produksi, f.casts, f.sinopsis
+		FROM films f
+		INNER JOIN theater_lists tl ON tl.film_id = f.id
+		INNER JOIN theaters t ON tl.theater_id = t.id
+    	`).Scan(&theater).Error
+
+	if err != nil {
+		log.Println(err)
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Internal Server Error",
+		})
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Successfully retrieved theater details",
+		"data":    theater,
 	})
 }
 
