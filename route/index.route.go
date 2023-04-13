@@ -30,5 +30,7 @@ func RouteInit(r *fiber.App) {
 	r.Post("/theater", controller.TheaterControllerCreate)
 	r.Put("/theater/:kota", controller.TheaterControllerUpdate)
 	r.Delete("/theater/:kota", controller.TheaterControllerDelete)
+	r.Get("/theaterlist", controller.FilmControllerGetByTheaterId)
+	r.Get("/theaterdetails", controller.TheaterControllerGetDetails)
 
 }

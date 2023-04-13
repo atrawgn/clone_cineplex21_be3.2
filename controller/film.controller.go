@@ -10,14 +10,28 @@ import (
 )
 
 func FilmControllerGet(ctx *fiber.Ctx) error {
-	theaterid := ctx.Query("theaterid")
-	var films []entity.Film
-	err := database.DB.Find(&films).Joins("Inner Join theaterlists t on t.film_id = films.id").Where("t.theather_id = ?", theaterid)
-	if err != nil {
-		log.Println(err)
-	}
-	return ctx.JSON(films)
+	var film []entity.Film
+	err := database.DB.Find(&film)
 
+	if err.Error != nil {
+		log.Println(err.Error)
+	}
+	return ctx.JSON(film)
+}
+
+func FilmControllerGetByTheaterId(ctx *fiber.Ctx) error {
+	theaterid := ctx.QueryInt("theaterid")
+	var film []entity.TheaterId
+	err := database.DB.Raw(`
+		SELECT f.id, f.judul, l.theater_id AS theater_id, f.jenis_film, f. produser, f.sutradara, f.penulis, f.produksi, f.casts, f.sinopsis, f.like
+		FROM films f
+		INNER JOIN theater_lists l ON l.film_id = f.id
+		WHERE l.theater_id = ?`, theaterid).Scan(&film)
+
+	if err.Error != nil {
+		log.Println(err.Error)
+	}
+	return ctx.JSON(film)
 }
 
 /*func FilmControllerGet(ctx *fiber.Ctx) error {

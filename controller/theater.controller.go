@@ -11,6 +11,7 @@ import (
 )
 
 // User Section
+
 func TheaterControllerGetByKota(ctx *fiber.Ctx) error {
 	kota := ctx.Params("kota") // get the value of the 'kota' parameter from the request URL
 	userInfo := ctx.Locals("userInfo")
@@ -23,6 +24,25 @@ func TheaterControllerGetByKota(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.JSON(theaters)
+}
+
+func TheaterControllerGetDetails(ctx *fiber.Ctx) error {
+	theaterid := ctx.QueryInt("theaterid")
+	var film []entity.TheaterDetails
+	err := database.DB.Raw(`
+		SELECT theaters.id, theaters.kota, theaters.theater, theaters.phone, films.id, films.judul, films.jenis_film, films.produser, films.sutradara, films.penulis, films.produksi, films.casts, films.sinopsis
+		FROM theaters, films
+		INNER JOIN theater_lists l ON l.film_id = films.id
+		WHERE theaters.id = ?`, theaterid).Scan(&film)
+
+	if err.Error != nil {
+		log.Println(err.Error)
+	}
+
+	return ctx.JSON(fiber.Map{
+		"message": "successfully",
+		"data":    film,
+	})
 }
 
 func TheaterControllerCreate(ctx *fiber.Ctx) error {
