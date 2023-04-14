@@ -12,7 +12,7 @@ func RouteInit(r *fiber.App) {
 
 	r.Post("/login", controller.LoginController)
 
-	r.Get("/film", middleware.Auth, controller.FilmControllerGet)
+	r.Get("/film", controller.FilmControllerGet)
 	r.Get("/film/:id", controller.FilmControllerGetById)
 	r.Post("/film", controller.FilmControllerCreate)
 	r.Put("/film/:id", controller.FilmControllerUpdate)
