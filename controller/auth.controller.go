@@ -52,7 +52,7 @@ func LoginController(ctx *fiber.Ctx) error {
 	claims["email"] = user.Email
 	claims["exp"] = time.Now().Add(time.Minute * 1).Unix()
 
-	if user.Email == "aufa@gmail.com" {
+	if user.Email == "atrawgn@gmail.com" {
 		claims["role"] = "admin"
 	} else {
 		claims["role"] = "user"

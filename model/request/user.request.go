@@ -2,13 +2,14 @@ package request
 
 type FilmCreateRequest struct {
 	Judul     string `json:"judul" validate:"required"`
-	JenisFilm string `json:"jenis_film" validate:"required"`
+	JenisFilm string `json:"jenis_film"`
 	Produser  string `json:"produser" validate:"required"`
 	Sutradara string `json:"sutradara" validate:"required"`
 	Penulis   string `json:"penulis" validate:"required"`
 	Produksi  string `json:"produksi" validate:"required"`
 	Casts     string `json:"casts" validate:"required"`
 	Sinopsis  string `json:"sinopsis" validate:"required"`
+	Cover     string `json:"cover"`
 }
 
 type FilmUpdateRequest struct {
@@ -20,6 +21,7 @@ type FilmUpdateRequest struct {
 	Produksi  string `json:"produksi"`
 	Casts     string `json:"casts"`
 	Sinopsis  string `json:"sinopsis"`
+	Like      string `json:"like"`
 }
 
 // USER SECTION
@@ -48,6 +50,10 @@ type TheaterUpdateRequest struct {
 	Kota    string `json:"kota"`
 	Theater string `json:"theater"`
 	Phone   string `json:"phone"`
+}
+type TheaterListCreateRequest struct {
+	TheaterId uint `json:"theater_id"`
+	FilmId    uint `json:"film_id"`
 }
 
 //BOOK SECTION

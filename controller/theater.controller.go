@@ -46,24 +46,36 @@ func TheaterControllerGetByKota(ctx *fiber.Ctx) error {
 }*/
 
 func TheaterControllerGetDetails(ctx *fiber.Ctx) error {
-	var theater []entity.TheaterList
-	err := database.DB.Raw(`
-        SELECT tl.id, t.kota, t.theater, t.phone, f.id, f.judul, f.jenis_film, f.produser, f.sutradara, f.penulis, f.produksi, f.casts, f.sinopsis
-		FROM films f
-		INNER JOIN theater_lists tl ON tl.film_id = f.id
-		INNER JOIN theaters t ON tl.theater_id = t.id
-    	`).Scan(&theater).Error
+	theaterId := ctx.QueryInt("theaterid")
 
+	var theater entity.Theater
+
+	err := database.DB.First(&theater, "id = ?", theaterId).Error
 	if err != nil {
-		log.Println(err)
-		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Internal Server Error",
+		return ctx.Status(404).JSON(fiber.Map{
+			"message": "data tidak ditemukan",
 		})
 	}
 
-	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message": "Successfully retrieved theater details",
-		"data":    theater,
+	var film []entity.TheaterId
+	err = database.DB.Raw(`
+		SELECT f.id, f.judul, l.theater_id AS theater_id, f.jenis_film, f. produser, f.sutradara, f.penulis, f.produksi, f.casts, f.sinopsis, f.like
+		FROM films f
+		INNER JOIN theater_lists l ON l.film_id = f.id
+		WHERE l.theater_id = ?`, theaterId).Scan(&film).Error
+
+	var theaterdetails entity.TheaterDetails
+	theaterdetails.ID = theater.ID
+	theaterdetails.Kota = theater.Kota
+	theaterdetails.Theater = theater.Theater
+	theaterdetails.Phone = theater.Phone
+	theaterdetails.Film = film
+
+	return ctx.JSON(fiber.Map{
+		"theater": theater,
+		"film":    film,
+		"details": theaterdetails,
+		"message": "success",
 	})
 }
 
@@ -88,16 +100,6 @@ func TheaterControllerCreate(ctx *fiber.Ctx) error {
 		Theater: theater.Theater,
 		Phone:   theater.Phone,
 	}
-
-	/*hashedPassword, err := utils.HashingPassword(user.Password)
-	if err != nil {
-		log.Println(err)
-		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "internal server error",
-		})
-	}
-
-	newUser.Password = hashedPassword*/
 
 	errCreateTheater := database.DB.Create(&newTheater).Error
 	if errCreateTheater != nil {
@@ -167,18 +169,18 @@ func TheaterControllerUpdate(ctx *fiber.Ctx) error {
 }
 
 func TheaterControllerDelete(ctx *fiber.Ctx) error {
-	userId := ctx.Params("id")
-	var user entity.User
+	theaterId := ctx.Params("id")
+	var theater entity.Theater
 
 	// CHECK AVAILABLE USER
-	err := database.DB.Debug().First(&user, "id=?", userId).Error
+	err := database.DB.Debug().First(&theater, "id=?", theaterId).Error
 	if err != nil {
 		return ctx.Status(404).JSON(fiber.Map{
-			"message": "user tidak ditemukan",
+			"message": "theater tidak ditemukan",
 		})
 	}
 
-	errDelete := database.DB.Debug().Delete(&user).Error
+	errDelete := database.DB.Debug().Delete(&theater).Error
 	if errDelete != nil {
 		return ctx.Status(500).JSON(fiber.Map{
 			"message": "internal server error",
@@ -186,41 +188,40 @@ func TheaterControllerDelete(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.JSON(fiber.Map{
-		"message": "user telah dihapus",
+		"message": "theater telah dihapus",
 	})
 }
 
-/*func TheaterControllerUpdateEmail(ctx *fiber.Ctx) error {
-	userRequest := new(request.UserEmailRequest)
-	if err := ctx.BodyParser(userRequest); err != nil {
+func TheaterControllerCreateList(ctx *fiber.Ctx) error {
+	Theater := new(request.TheaterListCreateRequest)
+
+	if err := ctx.BodyParser(Theater); err != nil {
+		return err
+	}
+
+	validate := validator.New()
+	errValidate := validate.Struct(Theater)
+	if errValidate != nil {
 		return ctx.Status(400).JSON(fiber.Map{
-			"message": "bad request",
+			"message": "gagal",
+			"error":   errValidate.Error(),
 		})
 	}
 
-	var user entity.User
-
-	userId := ctx.Params("id")
-	// CHECK AVAILABLE USER
-	err := database.DB.First(&user, "id = ?", userId).Error
-	if err != nil {
-		return ctx.Status(404).JSON(fiber.Map{
-			"message": "data tidak valid",
-		})
+	newTheaterList := entity.TheaterList{
+		TheaterID: Theater.TheaterId,
+		FilmID:    Theater.FilmId,
 	}
 
-	// UPDATE USER DATA
-	user.Email = userRequest.Email
-
-	errUpdate := database.DB.Save(&user).Error
-	if errUpdate != nil {
+	errCreateTheater := database.DB.Create(&newTheaterList).Error
+	if errCreateTheater != nil {
 		return ctx.Status(500).JSON(fiber.Map{
-			"message": "internal server error",
+			"message": "gagal menyimpan data",
 		})
 	}
 
 	return ctx.JSON(fiber.Map{
-		"message": "Sukses",
-		"data":    user,
+		"message": "success",
+		"data":    newTheaterList,
 	})
-}*/
+}

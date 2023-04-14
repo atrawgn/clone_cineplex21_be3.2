@@ -8,9 +8,9 @@ type Theater struct {
 }
 
 type TheaterDetails struct {
-	ID      uint   `json:"id" gorm:"primaryKey"`
-	Kota    string `json:"kota"`
-	Theater string `json:"theater"`
-	Phone   string `json:"phone"`
-	Film    []Film `json:"film"`
+	ID      uint        `json:"id" gorm:"primaryKey"`
+	Kota    string      `json:"kota"`
+	Theater string      `json:"theater"`
+	Phone   string      `json:"phone"`
+	Film    []TheaterId `json:"film"`
 }

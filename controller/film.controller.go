@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/atrawiguna/golang-restapi-gorm/database"
 	"github.com/atrawiguna/golang-restapi-gorm/model/entity"
 	"github.com/atrawiguna/golang-restapi-gorm/model/request"
@@ -20,28 +21,19 @@ func FilmControllerGet(ctx *fiber.Ctx) error {
 }
 
 func FilmControllerGetByTheaterId(ctx *fiber.Ctx) error {
-	theaterid := ctx.QueryInt("theaterid")
+	theaterId := ctx.QueryInt("theaterid")
 	var film []entity.TheaterId
 	err := database.DB.Raw(`
 		SELECT f.id, f.judul, l.theater_id AS theater_id, f.jenis_film, f. produser, f.sutradara, f.penulis, f.produksi, f.casts, f.sinopsis, f.like
 		FROM films f
 		INNER JOIN theater_lists l ON l.film_id = f.id
-		WHERE l.theater_id = ?`, theaterid).Scan(&film)
+		WHERE l.theater_id = ?`, theaterId).Scan(&film)
 
 	if err.Error != nil {
 		log.Println(err.Error)
 	}
 	return ctx.JSON(film)
 }
-
-/*func FilmControllerGet(ctx *fiber.Ctx) error {
-	var films []entity.Film
-	err := database.DB.Select("id, judul").Find(&films).Error
-	if err != nil {
-		log.Println(err)
-	}
-	return ctx.JSON(films)
-}*/
 
 func FilmControllerCreate(ctx *fiber.Ctx) error {
 	film := new(request.FilmCreateRequest)
@@ -59,6 +51,19 @@ func FilmControllerCreate(ctx *fiber.Ctx) error {
 		})
 	}
 
+	//HANDLE FILE
+	file, errFile := ctx.FormFile("cover")
+	if errFile != nil {
+		log.Println("Error File: ", errFile)
+	}
+
+	filename := file.Filename
+
+	errSaveFile := ctx.SaveFile(file, fmt.Sprintf("./public/asset/%s", filename))
+	if errSaveFile != nil {
+		log.Println("File gagal disimpan")
+	}
+
 	newFilm := entity.Film{
 		Judul:     film.Judul,
 		JenisFilm: film.JenisFilm,
@@ -68,6 +73,7 @@ func FilmControllerCreate(ctx *fiber.Ctx) error {
 		Produksi:  film.Produksi,
 		Casts:     film.Casts,
 		Sinopsis:  film.Sinopsis,
+		Cover:     filename,
 	}
 
 	errCreateFilm := database.DB.Create(&newFilm).Error
