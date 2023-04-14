@@ -21,7 +21,10 @@ type FilmUpdateRequest struct {
 	Produksi  string `json:"produksi"`
 	Casts     string `json:"casts"`
 	Sinopsis  string `json:"sinopsis"`
-	Like      string `json:"like"`
+}
+
+type FilmLikeUpdateRequest struct {
+	Like uint `json:"like"`
 }
 
 // USER SECTION
@@ -72,4 +75,11 @@ type BookUpdateRequest struct {
 	Synopsis string `json:"sinopsis"`
 	Content  string `json:"content"`
 	Author   string `json:"author"`
+}
+
+//COMMENT
+
+type CommentCreateRequest struct {
+	FilmId  uint   `json:"film_id" validate:"required"`
+	Comment string `json:"comment" validate:"required"`
 }

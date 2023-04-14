@@ -168,7 +168,39 @@ func FilmControllerDelete(ctx *fiber.Ctx) error {
 	})
 }
 
-// COMMENT
+func FilmControllerLikeUpdate(ctx *fiber.Ctx) error {
+	LikeRequest := new(request.FilmLikeUpdateRequest)
+	if err := ctx.BodyParser(LikeRequest); err != nil {
+		return ctx.Status(400).JSON(fiber.Map{
+			"message": "Bad Request",
+		})
+	}
+
+	var Film entity.Film
+	FilmId := ctx.Params("id")
+	// CHECK AVALAIBLE Film
+	err := database.DB.First(&Film, "id = ?", FilmId).Error
+	if err != nil {
+		return ctx.Status(404).JSON(fiber.Map{
+			"message": "film not found",
+		})
+	}
+
+	// UPDATE FILM DATA
+	Film.Like = LikeRequest.Like
+
+	errUpdate := database.DB.Save(&Film).Error
+	if errUpdate != nil {
+		return ctx.Status(500).JSON(fiber.Map{
+			"message": "internal server error",
+		})
+	}
+
+	return ctx.JSON(fiber.Map{
+		"message": "successfully",
+		"data":    Film,
+	})
+}
 
 /*func CreateComment(ctx *fiber.Ctx) error {
 	// Check if user is authenticated

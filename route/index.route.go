@@ -17,6 +17,7 @@ func RouteInit(r *fiber.App) {
 	r.Post("/film", controller.FilmControllerCreate)
 	r.Put("/film/:id", controller.FilmControllerUpdate)
 	r.Delete("/film/:id", controller.FilmControllerDelete)
+	r.Put("/film/:id/like", controller.FilmControllerLikeUpdate)
 
 	r.Get("/user", middleware.Auth, controller.UserControllerGet)
 	r.Get("/user/:id", controller.UserControllerGetById)
